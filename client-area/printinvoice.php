@@ -49,7 +49,8 @@ if($invoice_count > 0)
         $customername = $inv->companyname;
         $cmp_contactno = $inv->cmp_contactno;
         $address = $inv->cmp_address1;
-        $term_detail = $inv->term_detail; 
+        $term_detail = $inv->term_detail;
+        $discount_in = ($inv->discount_in=='rupee')?'₹':'%'; 
         $discount_total = $inv->disc_total; 
         $grand_total = $inv->grandtotal; 
         $payment_type = $inv->payment_type; 
@@ -182,7 +183,7 @@ foreach ($item as $itm){
                                         <td class="text-center"><?= number_format($quantity,0); ?></td>
                                         <?php if($discount_total != "0" && !empty($discount_total))
                                         { ?>
-                                        <td class="text-center"><?= number_format($discount,2); ?></td>
+                                        <td class="text-center"><?= number_format($discount,2).''.$discount_in;?></td>
                                         <?php }?>
                                         <td class="text-end"><?= number_format($taxable_line_value,2); ?></td>
                                     </tr>

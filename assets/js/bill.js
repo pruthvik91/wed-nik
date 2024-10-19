@@ -498,7 +498,7 @@ function UpdateCalculations(){
 	$("#document-item-list-table .product-item-row").each(function(){
 		rowcounter = rowcounter + 1;
 		var quantity = $(this).find(".quantity").val();
-		var is_transport = $(this).find(".hidden-item-product-is_transport").val();
+		var is_transport = $(this).find(".hidden-item-product-is_transport").val();	
 		var mrp = $(this).find(".mrp").val();
 		var rate = $(this).find(".rate").val();
 		var disc = $(this).find(".disc").val();
@@ -587,12 +587,21 @@ function UpdateCalculations(){
 			row_total =  quantity*rate;
 			
 			var DiskRs = 0;
-			var discount_in = 'rupee';
 			var discount_per_item = 1;
-			if(disc>0 && discount_in=='rupee' && discount_per_item == 1)
-			{
-				DiskRs = disc;
-			}
+			
+			if(disc>0 && discount_in=='percentage')
+				{
+					DiskRs = (disc*row_total)/100;
+				}						
+				
+				if(disc>0 && discount_in=='rupee' && discount_per_item == 1)
+				{
+					DiskRs = disc*quantity;
+				}
+				if(disc>0 && discount_in=='rupee' && discount_per_item == 0)
+				{
+					DiskRs = disc;
+				}
 			row_total_disc += DiskRs;
 			row_total = row_total-DiskRs;
 			row_total = Math.round(row_total * taxable_decimal_rounding) / taxable_decimal_rounding;
@@ -829,7 +838,6 @@ function UpdateTrigger(){
 	var line_total = $(ParentRowOfCurTotal).find(".line_total").val();	
 	var rate = $(ParentRowOfCurTotal).find(".rate").val();	
 	var disc = $(ParentRowOfCurTotal).find(".disc").val();	
-	console.log(disc);
 	var taxable_line_value = $(ParentRowOfCurTotal).find(".taxable_line_value").val();	
 	var cgst = "";	
 	var sgst = "";	
@@ -1022,7 +1030,6 @@ function UpdateTrigger(){
 					$( event.target ).attr("data-oldval", ui.item.label );
 					var $targetparnt = $( event.target ).parents(".product-item-row");
 					$( event.target ).val( ui.item.label );
-					console.log(ui.item.value);
 					$($targetparnt).find( ".hidden-item-product-id" ).val( ui.item.value);
 					$($targetparnt).find( ".hidden-item-product-name" ).val( ui.item.name);
 					$($targetparnt).find( ".hidden-item-product-uom" ).val( ui.item.uom);
@@ -1071,11 +1078,9 @@ function UpdateTrigger(){
 			}
 		},
 		select: function( event, ui ) {
-			console.log(11111);
 			var $targetparnt = $( event.target ).parents(".product-item-row");
 			$(event.target).attr("data-oldval", ui.item.label);
 			$(event.target).val(ui.item.label);
-			console.log(ui.item.value);
 			$($targetparnt).find( ".hidden-item-product-id" ).val( ui.item.value);
 			$($targetparnt).find( ".hidden-item-product-name" ).val( ui.item.name);
 			$($targetparnt).find(".quantity").attr('readonly',false);
@@ -1440,10 +1445,6 @@ function validateCurrentRowsForSubmit(){
 	
 	return isValid;
 }
-$(document).on("change", "#reverse_Charge", function(){
-	SetIGTS();
-	UpdateCalculations();
-});
 $(document).on("change", "[name=payment]", function(){
 	SetPaymentModeDueDate();
 });

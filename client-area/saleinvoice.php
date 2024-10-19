@@ -75,7 +75,7 @@ $total_discount_label_op = 'Discount';
 $other_tax_label_op = 'TCS';
 $general_disc_label_op = 'General Discount';
 $allow_oversell = 0;
-$discount_in_op = 'percentage';
+$discount_in_op = '';
 $discount_per_item_op = 0;
 $quantity_decimal_value = 2;
 $price_decimal_value = 2;
@@ -312,6 +312,7 @@ if ((!empty($_POST)) && isset($_POST)) {
             total_discount_amount=:total_discount_amount,
             modifydate=DATE_ADD(NOW(), INTERVAL " . DB_TIMEDIFF . " MINUTE),
             total_in_words=:total_in_words,
+            discount_in=:discount_in,
             document_note=:document_note, 
             term_detail=:term_detail 
             where invoice_detail_id=:invoice_detail_id");
@@ -344,6 +345,7 @@ if ((!empty($_POST)) && isset($_POST)) {
             ':total_discount_value' => $total_discount_value,
             ':total_discount_amount' => $total_discount_amount,
             ':total_in_words' => $total_in_words,
+            ':discount_in' => $discount_in,
             ':document_note' => $document_note,
             ':term_detail' => $term_detail,
             ':invoice_detail_id' => $invoice_detail_id
@@ -504,7 +506,7 @@ VALUES(
             );
             $product_id = CP_Insert($sql, $data);
         }
-        
+
         if ($product_id != "" && $quantity != "" && $rate != "") {
             $stmt = $db->prepare("INSERT INTO " . DB_BASE . ".invoice_item_detail (
     invoice_detail_id,
@@ -695,6 +697,22 @@ VALUES(
                                 <div class="widget-header">
                                     <h3>Product Items</h3>
                                 </div>
+                                <div style="display: inline-block;width: 100%;">
+										<div class="cd-pricing-switcher">
+											<div class="switcher_label">Discount : </div>
+											<p class="fieldset">
+												<input type="radio" name="disc-type" value="1" id="disc-rs" <?php if ($discount_in == 'rupee') {
+																												echo ' checked';
+																											} ?>>
+												<label for="disc-rs">Rs</label>
+												<input type="radio" name="disc-type" value="0" id="disc-p" <?php if ($discount_in == 'percentage') {
+																												echo ' checked';
+																											} ?>>
+												<label for="disc-p">%</label>
+												<span class="cd-switch"></span>
+											</p>
+										</div>
+									</div>
                                 <div class="widget-content">
                                     <div class="div-invoice-product-items-table">
                                         <table class="invoice-product-items-table table  table-bordered" id="document-item-list-table">
@@ -965,13 +983,14 @@ VALUES(
                                                         <input type="hidden" name="row_total_price" id="row_total_price" value="<?php echo $row_total_price; ?>" />
                                                         <label type="text" name="row_total_price_lable" id="row_total_price_lable" class="row_total_price_lable"></label>
                                                     </td>
-                                                    <td class="discount_field">
-                                                        <input type="hidden" name="row_total_disc" id="row_total_disc" value="<?php echo $row_total_disc; ?>" />
-                                                        <label type="text" name="row_total_disc_lable" id="row_total_disc_lable" class="row_total_disc_lable"></label>
-                                                    </td>
+                                                   
                                                     <td class="product_row_igst_col">
                                                         <input type="hidden" name="row_total_igst_rate" id="row_total_igst_rate" value="<?php echo $row_total_igst_rate; ?>" />
                                                         <label type="text" name="row_total_igst_rate_lable" id="row_total_igst_rate_lable" class="row_total_igst_rate_lable"></label>
+                                                    </td>
+                                                    <td class="discount_field">
+                                                        <input type="hidden" name="row_total_disc" id="row_total_disc" value="<?php echo $row_total_disc; ?>" />
+                                                        <label type="text" name="row_total_disc_lable" id="row_total_disc_lable" class="row_total_disc_lable"></label>
                                                     </td>
                                                     <td>
                                                         <input type="hidden" name="row_total_total" id="row_total_total" value="<?php echo $row_total_total; ?>" />
@@ -984,7 +1003,7 @@ VALUES(
                                     </div>
 
                                     <div class="row">
-                                        <div class="span6 span-md-7  span-sm-7 span-xs-13 row-span-left">
+                                        <div class="span6 span-md-6  span-sm-6 span-xs-12 row-span-left">
                                             <br>
                                             <h5 class="text-center">Terms &amp; Condition / Additional Note</h5>
                                             <div class="termConditionSection sortabletc ui-sortable">
@@ -1054,7 +1073,7 @@ VALUES(
                                                     <tr>
                                                         <td colspan="2" class="tdttlinwords">
                                                             <label class="inner-widget-content-label">Total in words</label>
-                                                            <label for="firstname" id="grandtotalwords"><?php echo $total_in_words; ?></label>
+                                                            <label for="firstname" id="grandtotalwords" style="word-wrap: break-word;white-space: normal;width: 85%;"><?php echo $total_in_words; ?></label>
                                                             <input type="hidden" name="hidden_round_off_value" id="hidden_round_off_value" value="<?php echo $round_off_value; ?>" />
                                                             <input type="hidden" name="hidden_grandtotalwords" id="hidden_grandtotalwords" value="<?php echo $total_in_words; ?>" />
                                                             <input type="hidden" name="hidden_cust_pay_grandtotalwords" id="hidden_cust_pay_grandtotalwords" value="<?php echo $cus_pay_total_in_words; ?>" />
@@ -1179,6 +1198,7 @@ if (isset($rowcountpro) && $rowcountpro != "") {
     <?php
     }
 }
+
 if (isset($_GET['draft_id']) && $_GET['draft_id'] != '') {
     ?>
     <script>
@@ -1190,6 +1210,9 @@ if (isset($_GET['draft_id']) && $_GET['draft_id'] != '') {
 <?php
 }
 ?>
+<script>
+    var discount_in = '<?php echo $discount_in; ?>';
+</script>
 <script src="../assets/js/general.js"></script>
 <script src="../assets/js/bill.js"></script>
 <script src="../assets/js/bootstrap-select.min.js"></script>
